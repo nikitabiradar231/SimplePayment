@@ -129,9 +129,9 @@ export default function App() {
         senderAddress: walletAddress,
         recipientAddress,
         amount,
-        signWithFreighter: async (unsignedXdr) => {
+        signWithFreighter: async (unsignedXdr, accountToSign) => {
           setStatusMessage("2/3 Please approve the transaction in Freighter popup...");
-          return await signTxWithFreighter(unsignedXdr);
+          return await signTxWithFreighter(unsignedXdr, accountToSign || walletAddress);
         },
       });
 

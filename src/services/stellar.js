@@ -181,7 +181,7 @@ export async function sendXlmPayment({
   // 6. Sign transaction via Freighter Wallet
   let signedXdr;
   try {
-    signedXdr = await signWithFreighter(unsignedXdr);
+    signedXdr = await signWithFreighter(unsignedXdr, cleanSender);
   } catch (signErr) {
     throw signErr; // Rethrow formatted freighter error
   }
@@ -217,7 +217,9 @@ export async function sendXlmPayment({
         const txCode = resultCode.transaction;
         const opCodes = resultCode.operations || [];
 
-        if (txCode === "tx_bad_seq") {
+        if (txCode === "tx_bad_auth") {
+          userMsg = "Signature authentication failed (tx_bad_auth). Please check that your Freighter wallet network is set to TESTNET and that the active account in Freighter matches your connected public address.";
+        } else if (txCode === "tx_bad_seq") {
           userMsg = "Transaction sequence error (outdated sequence number). Please try again.";
         } else if (txCode === "tx_insufficient_fee") {
           userMsg = "Insufficient transaction fee provided for Testnet network congestion.";

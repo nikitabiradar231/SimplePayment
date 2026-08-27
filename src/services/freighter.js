@@ -103,19 +103,25 @@ export async function connectFreighterWallet() {
 /**
  * Signs a transaction XDR via Freighter wallet on Stellar Testnet.
  * @param {string} unsignedXdr Base64 encoded transaction XDR
+ * @param {string} [accountToSign] Connected public key address
  * @returns {Promise<string>} Signed Base64 transaction XDR
  */
-export async function signTxWithFreighter(unsignedXdr) {
+export async function signTxWithFreighter(unsignedXdr, accountToSign) {
   try {
     const signTxFn = getApiFn("signTransaction");
     if (!signTxFn) {
       throw new Error("Freighter signTransaction method is not available.");
     }
 
-    const result = await signTxFn(unsignedXdr, {
+    const opts = {
       network: "TESTNET",
       networkPassphrase: Networks.TESTNET,
-    });
+    };
+    if (accountToSign) {
+      opts.accountToSign = accountToSign;
+    }
+
+    const result = await signTxFn(unsignedXdr, opts);
 
     if (!result) {
       throw new Error("User rejected transaction or closed Freighter popup.");
