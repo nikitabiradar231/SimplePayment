@@ -132,17 +132,17 @@ Follow these steps to verify the full Level 1 payment flow:
 > [!NOTE]
 > Screenshots illustrating the application states on Stellar Testnet:
 
-### 1. Wallet Connected State
-![Wallet Connected State](docs/screenshots/01-wallet-connected.png)
+### 1. Connected Wallet & Live Balance
+![Connected Wallet & Live Balance](docs/screenshots/01-wallet-connected.png)
 
-### 2. XLM Balance Displayed
-![XLM Balance Displayed](docs/screenshots/02-xlm-balance.png)
+### 2. Send XLM Payment Form
+![Send XLM Payment Form](docs/screenshots/02-send-form.png)
 
-### 3. Successful Testnet Transaction
-![Successful Testnet Transaction](docs/screenshots/03-successful-transaction.png)
+### 3. Freighter Wallet Approval Prompt
+![Freighter Wallet Approval Prompt](docs/screenshots/03-freighter-approval.png)
 
-### 4. Transaction Result Shown to the User
-![Transaction Result Shown to the User](docs/screenshots/04-transaction-result.png)
+### 4. Transaction Successful Confirmation & Hash
+![Transaction Successful Confirmation & Hash](docs/screenshots/04-transaction-success.png)
 
 ---
 
