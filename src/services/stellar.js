@@ -207,6 +207,8 @@ export async function sendXlmPayment({
     console.error("Horizon transaction submission error:", submitError);
     
     // Parse Horizon result codes if available
+    let userMsg = "Transaction submission failed on Stellar Testnet.";
+    
     if (submitError.response && submitError.response.data) {
       const data = submitError.response.data;
       const resultCode = data.extras && data.extras.result_codes;
@@ -216,25 +218,23 @@ export async function sendXlmPayment({
         const opCodes = resultCode.operations || [];
 
         if (txCode === "tx_bad_seq") {
-          throw new Error("Transaction sequence error. Please try again.");
-        }
-        if (txCode === "tx_insufficient_fee") {
-          throw new Error("Insufficient transaction fee.");
-        }
-        if (opCodes.includes("op_no_destination")) {
-          throw new Error(
-            "The recipient account does not exist on Testnet. Destination accounts must be funded before receiving payments."
-          );
-        }
-        if (opCodes.includes("op_underfunded")) {
-          throw new Error("Insufficient XLM balance to complete payment and transaction fees.");
+          userMsg = "Transaction sequence error (outdated sequence number). Please try again.";
+        } else if (txCode === "tx_insufficient_fee") {
+          userMsg = "Insufficient transaction fee provided for Testnet network congestion.";
+        } else if (opCodes.includes("op_no_destination")) {
+          userMsg = "The recipient account does not exist on Testnet. Destination accounts must be activated with XLM before receiving payments.";
+        } else if (opCodes.includes("op_underfunded")) {
+          userMsg = "Insufficient XLM balance to complete payment and required minimum reserve.";
+        } else if (opCodes.includes("op_src_not_authorized")) {
+          userMsg = "Source account is not authorized to send payments.";
         }
       }
+    } else if (submitError.message && submitError.message.includes("timeout")) {
+      userMsg = "Network request timed out. Please check your internet connection and retry.";
     }
 
-    throw new Error(
-      submitError.message ||
-        "Transaction submission failed on Stellar Testnet. Please check network connectivity and try again."
-    );
+    const errObj = new Error(userMsg);
+    errObj.raw = submitError.response ? submitError.response.data : submitError.message;
+    throw errObj;
   }
 }
