@@ -1,10 +1,21 @@
-import {
-  isConnected,
-  getAddress,
-  signTransaction,
-  requestAccess,
-} from "@stellar/freighter-api";
+import * as FreighterApi from "@stellar/freighter-api";
 import { Networks } from "@stellar/stellar-sdk";
+
+/**
+ * Safely retrieves a function from @stellar/freighter-api module or window.freighterApi
+ */
+function getApiFn(fnName) {
+  if (typeof FreighterApi[fnName] === "function") {
+    return FreighterApi[fnName];
+  }
+  if (FreighterApi.default && typeof FreighterApi.default[fnName] === "function") {
+    return FreighterApi.default[fnName];
+  }
+  if (typeof window !== "undefined" && window.freighterApi && typeof window.freighterApi[fnName] === "function") {
+    return window.freighterApi[fnName];
+  }
+  return null;
+}
 
 /**
  * Checks if the Freighter browser extension is installed and accessible.
@@ -12,12 +23,16 @@ import { Networks } from "@stellar/stellar-sdk";
  */
 export async function isFreighterAvailable() {
   try {
-    const connectedResult = await isConnected();
-    // Freighter returns an object { isConnected: boolean } or a boolean depending on version
-    if (typeof connectedResult === "object" && connectedResult !== null) {
-      return Boolean(connectedResult.isConnected);
+    const isConnFn = getApiFn("isConnected");
+    if (isConnFn) {
+      const connectedResult = await isConnFn();
+      if (typeof connectedResult === "object" && connectedResult !== null) {
+        return Boolean(connectedResult.isConnected);
+      }
+      return Boolean(connectedResult);
     }
-    return Boolean(connectedResult);
+    // Fallback: check window object directly
+    return typeof window !== "undefined" && Boolean(window.freighterApi || window.freighter);
   } catch (error) {
     console.warn("Freighter check error:", error);
     return false;
@@ -26,6 +41,7 @@ export async function isFreighterAvailable() {
 
 /**
  * Connects to Freighter wallet and retrieves the active public address.
+ * Uses requestAccess() / getPublicKey() from @stellar/freighter-api.
  * Never stores or requests private keys.
  * @returns {Promise<string>} Stellar public address (G...)
  */
@@ -38,35 +54,46 @@ export async function connectFreighterWallet() {
   }
 
   try {
-    // Request access to Freighter if not already permitted
-    if (typeof requestAccess === "function") {
-      const accessRes = await requestAccess();
-      if (accessRes && accessRes.error) {
+    let publicKey = "";
+
+    // 1. Try requestAccess() first (prompts user for permission & returns public key)
+    const requestAccessFn = getApiFn("requestAccess");
+    if (requestAccessFn) {
+      const accessRes = await requestAccessFn();
+      if (typeof accessRes === "string" && accessRes) {
+        publicKey = accessRes;
+      } else if (accessRes && accessRes.address) {
+        publicKey = accessRes.address;
+      } else if (accessRes && accessRes.publicKey) {
+        publicKey = accessRes.publicKey;
+      } else if (accessRes && accessRes.error) {
         throw new Error(accessRes.error);
       }
     }
 
-    // Retrieve active wallet address
-    const addressResult = await getAddress();
-    
-    // Normalize address string from response object or string
-    let publicKey = "";
-    if (typeof addressResult === "string") {
-      publicKey = addressResult;
-    } else if (addressResult && addressResult.address) {
-      publicKey = addressResult.address;
-    } else if (addressResult && addressResult.publicKey) {
-      publicKey = addressResult.publicKey;
+    // 2. Fallback to getPublicKey() or getAddress() if requestAccess didn't return address
+    if (!publicKey) {
+      const getPubKeyFn = getApiFn("getPublicKey") || getApiFn("getAddress");
+      if (getPubKeyFn) {
+        const keyRes = await getPubKeyFn();
+        if (typeof keyRes === "string") {
+          publicKey = keyRes;
+        } else if (keyRes && keyRes.address) {
+          publicKey = keyRes.address;
+        } else if (keyRes && keyRes.publicKey) {
+          publicKey = keyRes.publicKey;
+        }
+      }
     }
 
     if (!publicKey) {
-      throw new Error("Failed to retrieve public key from Freighter wallet.");
+      throw new Error("Could not retrieve public key from Freighter. Please make sure Freighter is unlocked.");
     }
 
     return publicKey;
   } catch (err) {
     console.error("Failed to connect Freighter:", err);
-    if (err.message && err.message.includes("User rejected")) {
+    if (err.message && (err.message.includes("rejected") || err.message.includes("Declined"))) {
       throw new Error("Connection request was rejected in Freighter wallet.");
     }
     throw new Error(err.message || "Failed to connect to Freighter Wallet.");
@@ -80,8 +107,12 @@ export async function connectFreighterWallet() {
  */
 export async function signTxWithFreighter(unsignedXdr) {
   try {
-    // Prompt Freighter to sign the transaction XDR
-    const result = await signTransaction(unsignedXdr, {
+    const signTxFn = getApiFn("signTransaction");
+    if (!signTxFn) {
+      throw new Error("Freighter signTransaction method is not available.");
+    }
+
+    const result = await signTxFn(unsignedXdr, {
       network: "TESTNET",
       networkPassphrase: Networks.TESTNET,
     });
@@ -94,7 +125,6 @@ export async function signTxWithFreighter(unsignedXdr) {
       throw new Error(result.error.message || result.error);
     }
 
-    // Handle returned structure: string or { signedTxXdr }
     let signedXdr = "";
     if (typeof result === "string") {
       signedXdr = result;
@@ -111,7 +141,7 @@ export async function signTxWithFreighter(unsignedXdr) {
     console.error("Freighter signing error:", err);
     if (
       err.message &&
-      (err.message.includes("User rejected") ||
+      (err.message.includes("rejected") ||
         err.message.includes("Declined") ||
         err.message.includes("closed"))
     ) {
