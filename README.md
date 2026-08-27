@@ -2,6 +2,8 @@
 
 A clean, modern, beginner-friendly **Stellar Level 1 Payment Application** built on **Stellar Testnet** using **React**, **Vite**, **@stellar/stellar-sdk**, and **Freighter Wallet**.
 
+🚀 **Live Deployment**: [https://simple-payment-dapp-woad.vercel.app](https://simple-payment-dapp-woad.vercel.app)
+
 ---
 
 ## 📌 Project Description
