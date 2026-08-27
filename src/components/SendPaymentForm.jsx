@@ -124,6 +124,9 @@ export default function SendPaymentForm({
               onChange={(e) => setRecipient(e.target.value)}
               onBlur={() => handleBlur("recipient")}
               disabled={isSubmitting}
+              aria-label="Recipient Stellar Address"
+              aria-invalid={Boolean(errors.recipient)}
+              aria-describedby={errors.recipient ? "recipient-error" : undefined}
               style={{ fontSize: "0.875rem", paddingRight: "40px" }}
             />
             {touched.recipient && !errors.recipient && recipient.trim() && (
@@ -135,7 +138,7 @@ export default function SendPaymentForm({
             )}
           </div>
           {errors.recipient && (
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#fca5a5" }}>
+            <div id="recipient-error" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "#fca5a5" }}>
               <AlertCircle size={14} color="#ef4444" />
               <span>{errors.recipient}</span>
             </div>
@@ -150,6 +153,7 @@ export default function SendPaymentForm({
               type="button"
               onClick={handleSetMax}
               style={{ background: "none", border: "none", color: "#818cf8", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
+              aria-label="Set maximum XLM amount"
             >
               Use Max
             </button>
@@ -166,6 +170,9 @@ export default function SendPaymentForm({
               onChange={(e) => setAmount(e.target.value)}
               onBlur={() => handleBlur("amount")}
               disabled={isSubmitting}
+              aria-label="XLM Amount"
+              aria-invalid={Boolean(errors.amount)}
+              aria-describedby={errors.amount ? "amount-error" : undefined}
               style={{ fontSize: "1.1rem", fontWeight: 600, paddingRight: "70px" }}
             />
             <span style={{ position: "absolute", right: "16px", top: "50%", transform: "translateY(-50%)", fontWeight: 700, color: "#a5b4fc", fontSize: "0.9rem" }}>
