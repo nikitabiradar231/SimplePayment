@@ -36,10 +36,10 @@ impl PaymentTrackerContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::Env;
+    use soroban_sdk::{testutils::Address as _, Env};
 
     #[test]
-    fn test_record_payment() {
+    fn test_payment_count_sequence() {
         let env = Env::default();
         let contract_id = env.register_contract(None, PaymentTrackerContract);
         let client = PaymentTrackerContractClient::new(&env, &contract_id);
@@ -47,9 +47,18 @@ mod test {
         let sender = Address::generate(&env);
         let recipient = Address::generate(&env);
 
+        // Verify initial count is 0
+        assert_eq!(client.get_payment_count(), 0);
+
+        // Verify count is 1 after first record_payment call
         env.mock_all_auths();
-        let result = client.record_payment(&sender, &recipient, &10000000);
-        assert!(result);
+        let res1 = client.record_payment(&sender, &recipient, &10000000);
+        assert!(res1);
         assert_eq!(client.get_payment_count(), 1);
+
+        // Verify count is 2 after second record_payment call
+        let res2 = client.record_payment(&sender, &recipient, &20000000);
+        assert!(res2);
+        assert_eq!(client.get_payment_count(), 2);
     }
 }
