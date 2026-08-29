@@ -138,10 +138,10 @@ export async function fetchPaymentEvents(contractId = DEFAULT_CONTRACT_ID) {
       });
     }
 
-    return getFallbackEvents();
+    return [];
   } catch (err) {
     console.warn("Soroban RPC event query warning:", err);
-    return getFallbackEvents();
+    return [];
   }
 }
 
@@ -159,28 +159,9 @@ function formatEvtVal(val, fallback = "G...") {
 }
 
 /**
- * Provides structured activity feed events for local session tracking.
+ * Returns empty array when no real Soroban events exist on-chain.
  */
 function getFallbackEvents() {
-  return [
-    {
-      id: "evt-01",
-      sender: "GAVOLZ3L7RWM...YMC4PX",
-      recipient: "GDUYCJKP2F3E...BDCVA",
-      amount: "5.0000",
-      timestamp: new Date(Date.now() - 120000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: "Confirmed",
-      hash: "f9f88ea8b82d70fc3000eedf22ec268f466266b0cab15b6181187889e008b65",
-    },
-    {
-      id: "evt-02",
-      sender: "GBXKR2L8WMT...99KLPQ",
-      recipient: "GAVOLZ3L7RWM...YMC4PX",
-      amount: "10.0000",
-      timestamp: new Date(Date.now() - 600000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: "Confirmed",
-      hash: "e34b9fa821c900e128ef3489110034a7812bc8971209e74219ef8971290a1bc",
-    },
-  ];
+  return [];
 }
 
