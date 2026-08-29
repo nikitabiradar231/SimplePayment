@@ -25,18 +25,24 @@ Users connect using supported Stellar wallet options (Freighter, Albedo, xBull, 
 - **Contract Name**: Payment Tracker
 - **Network**: Stellar Testnet
 - **Contract ID**: `CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777`
+- **Verified Contract-Call Tx Hash**: `f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629`
 - **Contract Source**: [`contracts/payment_tracker/src/lib.rs`](contracts/payment_tracker/src/lib.rs)
 - **Soroban RPC URL**: `https://soroban-testnet.stellar.org`
 - **Stellar Expert Explorer**: [View Contract on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777)
+- **Verified Tx Explorer**: [View Contract Invocation Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629)
 
-### Contract Architecture & Functions
+### Contract Architecture & Persistent Storage Functions
 
 1. **`record_payment(env: Env, sender: Address, recipient: Address, amount: i128) -> bool`**
    - Authenticates the `sender` using `sender.require_auth()`.
-   - Increments persistent payment counter stored under `symbol_short!("count")` in instance storage.
+   - Reads the current payment count from persistent instance storage key `symbol_short!("count")` (defaulting to `0` if not set).
+   - Increments the count (`count + 1`) and writes the updated count back to persistent instance storage using `env.storage().instance().set(&symbol_short!("count"), &new_count)`.
    - Publishes contract event `payment_recorded` with topics `(symbol_short!("payment"), sender, recipient)` and value `amount`.
+   - Returns `true`.
+
 2. **`get_payment_count(env: Env) -> u32`**
-   - Reads total payments recorded by the contract instance from persistent storage.
+   - Reads and returns the actual stored payment count from persistent instance storage using `env.storage().instance().get(&symbol_short!("count")).unwrap_or(0)`.
+   - Returns `0` if no payment count exists yet, or the actual accumulated payment count otherwise.
 
 ### How Authentication Works
 The contract enforces explicit authentication using `sender.require_auth()`. When the transaction is constructed, Soroban RPC automatically attaches the required `soroban_auth` payload for the transaction signer.
