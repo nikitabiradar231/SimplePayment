@@ -8,6 +8,7 @@ import {
   Horizon,
   xdr,
   Address,
+  Account,
   nativeToScVal,
   scValToNative,
 } from "@stellar/stellar-sdk";
@@ -72,6 +73,47 @@ export async function buildPaymentTrackerTx({
     transaction: preparedTx,
     unsignedXdr: preparedTx.toXDR(),
   };
+}
+
+/**
+ * Reads the live payment count directly from the deployed Soroban PaymentTracker contract instance storage.
+ * Performs a read-only RPC simulation via `sorobanServer.simulateTransaction()` without transaction submission or signing.
+ * @param {string} [contractId]
+ * @returns {Promise<number>} Live payment count
+ */
+export async function getContractPaymentCount(contractId = DEFAULT_CONTRACT_ID) {
+  try {
+    const contract = new Contract(contractId);
+    const callOp = contract.call("get_payment_count");
+
+    // Use a dummy account for read-only RPC simulation (no balance or signing needed)
+    const dummyAccount = new Account(
+      "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+      "0"
+    );
+
+    const rawTx = new TransactionBuilder(dummyAccount, {
+      fee: "100",
+      networkPassphrase: Networks.TESTNET,
+    })
+      .addOperation(callOp)
+      .setTimeout(30)
+      .build();
+
+    const simRes = await sorobanServer.simulateTransaction(rawTx);
+
+    if (SorobanRpc.Api.isSimulationSuccess(simRes) && simRes.result && simRes.result.retval) {
+      const nativeVal = scValToNative(simRes.result.retval);
+      return typeof nativeVal === "number" || typeof nativeVal === "bigint"
+        ? Number(nativeVal)
+        : 0;
+    }
+
+    return 0;
+  } catch (err) {
+    console.warn("Soroban RPC getContractPaymentCount read error:", err);
+    return 0;
+  }
 }
 
 /**
