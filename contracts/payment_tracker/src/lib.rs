@@ -11,6 +11,13 @@ impl PaymentTrackerContract {
         // Authenticate sender
         sender.require_auth();
 
+        // Read current count from instance storage
+        let count: u32 = env.storage().instance().get(&symbol_short!("count")).unwrap_or(0);
+        let new_count = count.saturating_add(1);
+
+        // Write updated count to instance storage
+        env.storage().instance().set(&symbol_short!("count"), &new_count);
+
         // Emit payment_recorded contract event on Soroban
         env.events().publish(
             (symbol_short!("payment"), sender.clone(), recipient.clone()),
@@ -21,8 +28,8 @@ impl PaymentTrackerContract {
     }
 
     /// Retrieves total payments recorded by the contract instance.
-    pub fn get_payment_count(_env: Env) -> u32 {
-        1
+    pub fn get_payment_count(env: Env) -> u32 {
+        env.storage().instance().get(&symbol_short!("count")).unwrap_or(0)
     }
 }
 
