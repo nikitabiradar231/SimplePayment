@@ -1,0 +1,6 @@
+target
+target/
+contracts/**/target
+node_modules
+.git
+scratch
