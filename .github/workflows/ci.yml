@@ -1,0 +1,34 @@
+name: Level 3 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master, level2-development, level3-development ]
+  pull_request:
+    branches: [ main, master, level2-development, level3-development ]
+
+jobs:
+  build-and-test:
+    name: Build & Verify Level 3 dApp
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 4. Install Frontend Dependencies
+        run: npm install
+
+      - name: 5. Run Smart Contract & Frontend Tests
+        run: npm test
+
+      - name: 6. Build Production Frontend Bundle
+        run: npm run build
