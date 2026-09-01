@@ -8,7 +8,7 @@ A production-ready, mobile-responsive **Stellar Soroban dApp** upgraded to **Lev
 
 - 🌐 **Live Web Application**: [https://simple-payment-dapp-woad.vercel.app/](https://simple-payment-dapp-woad.vercel.app/)
 - 🌐 **Production Deployment Alias**: [https://simple-payment-dapp-o91xkzkoz-nikitabiradar300-1089s-projects.vercel.app/](https://simple-payment-dapp-o91xkzkoz-nikitabiradar300-1089s-projects.vercel.app/)
-- 📁 **GitHub Repository**: [https://github.com/nikitabiradar231/SimplePayment](https://github.com/nikitabiradar231/SimplePayment)
+- 📁 **GitHub Repository (Level 3 Branch)**: [https://github.com/nikitabiradar231/SimplePayment/tree/level3](https://github.com/nikitabiradar231/SimplePayment/tree/level3)
 
 ---
 
