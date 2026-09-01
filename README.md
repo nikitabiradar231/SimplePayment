@@ -1,196 +1,204 @@
-# StellarPay — Multi-Wallet Payment Tracker & Soroban Contract (Level 2)
+# StellarPay — Multi-Wallet Payment Tracker & Inter-Contract Engine (Level 3 Orange Belt)
 
-A clean, modern, production-ready Stellar payment tracker built on **Stellar Testnet** featuring **Multi-Wallet Support** via `@creit.tech/stellar-wallets-kit`, **Authentic Soroban Smart Contract Invocation**, **Real-Time Transaction Status Tracking**, and a **Live Soroban Event Activity Feed**.
+A production-ready, mobile-responsive **Stellar Soroban dApp** upgraded to **Level 3 - Orange Belt** submission standards. Built on **Stellar Testnet**, featuring **Multi-Wallet Support** (`@creit.tech/stellar-wallets-kit`), **Inter-Contract Smart Communication** (`PaymentTracker` → `AuditLogger`), **Real-Time Event Subscription Streaming**, **Comprehensive Error Handling & Loading Progress**, an **Automated Test Suite (8 Passing Tests)**, and a **GitHub Actions CI/CD Pipeline**.
 
 ---
 
 ## 🚀 Live Vercel Production Deployment
 
-- 🌐 **Live Web Application (Vercel)**: [https://simple-payment-dapp-woad.vercel.app/](https://simple-payment-dapp-woad.vercel.app/)
+- 🌐 **Live Web Application**: [https://simple-payment-dapp-woad.vercel.app/](https://simple-payment-dapp-woad.vercel.app/)
 - 🌐 **Production Deployment Alias**: [https://simple-payment-dapp-o91xkzkoz-nikitabiradar300-1089s-projects.vercel.app/](https://simple-payment-dapp-o91xkzkoz-nikitabiradar300-1089s-projects.vercel.app/)
-- 📁 **GitHub Repository (Level 2 Branch)**: [https://github.com/nikitabiradar231/SimplePayment/tree/level2-development](https://github.com/nikitabiradar231/SimplePayment/tree/level2-development)
+- 📁 **GitHub Repository**: [https://github.com/nikitabiradar231/SimplePayment](https://github.com/nikitabiradar231/SimplePayment)
 
 ---
 
-## 📌 Project Description
+## 📌 Project Overview
 
-This dApp is a **Multi-Wallet Payment Tracker & Soroban dApp** built for the Stellar ecosystem. It demonstrates end-to-end multi-wallet connectivity, authentic Soroban smart contract invocation, on-chain event emissions, and real-time transaction state management on Stellar Testnet.
+### What the dApp Does
+StellarPay enables users to connect their preferred Stellar web or extension wallet (Freighter, Albedo, xBull, Lobstr, Rabet), verify their active account balance, and initiate payments that trigger on-chain execution across dual Soroban smart contracts.
 
-Users connect using supported Stellar wallet options (Freighter, Albedo, xBull, Lobstr, Rabet), view their active public key address and live XLM balance, invoke the custom Soroban Payment Tracker smart contract (`record_payment`), sign with their wallet, and observe live on-chain contract events without refreshing the page.
+### Problem Solved
+Traditional payment tracking systems rely on centralized databases or single-contract architectures that lack audit trails and real-time state synchronization. StellarPay solves this by combining client authentication (`require_auth()`), custom input validation, emergency pause controls, and automated cross-contract audit logging (`PaymentTracker` calling `AuditLogger`) with continuous event streaming to update user interfaces instantly without manual page refreshes.
+
+### Why Stellar & Soroban
+- **Fast Ledger Finality**: Transactions close in ~5 seconds with sub-cent network fees.
+- **Soroban WebAssembly Smart Contracts**: Safe, sandboxed Rust smart contracts with type-checked cross-contract calls and indexed event emission.
 
 ---
 
-## 📜 Smart Contract
+## 🏗️ System Architecture
 
-- **Contract Name**: Payment Tracker
-- **Network**: Stellar Testnet
-- **Contract ID**: `CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777`
-- **Verified Contract-Call Tx Hash**: `f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629`
-- **Contract Source**: [`contracts/payment_tracker/src/lib.rs`](contracts/payment_tracker/src/lib.rs)
-- **Soroban RPC URL**: `https://soroban-testnet.stellar.org`
+```text
+               User (Browser / Mobile)
+                         ↓
+               Frontend (Vite + React)
+                         ↓
+    Multi-Wallet Kit (Freighter / Albedo / xBull)
+                         ↓
+        Stellar Testnet Horizon & Soroban RPC
+                         ↓
+    PaymentTracker Smart Contract A (Main Router)
+  - Validates amount > 0, sender != recipient, !paused
+  - Authenticates sender signature
+  - Updates total count & volume state
+                         ↓
+     [ Inter-Contract Invocation: log_audit ]
+                         ↓
+    AuditLogger Smart Contract B (Secondary Contract)
+  - Records global audit count & per-user log index
+  - Publishes contract audit event
+                         ↓
+    Contract Events emitted on-chain (payment & audit)
+                         ↓
+  Real-Time Subscription Stream (eventStream.js)
+                         ↓
+     Live UI Activity Feed & State Update (No Refresh)
+```
+
+---
+
+## 📜 Smart Contracts & Inter-Contract Communication
+
+### Smart Contract Addresses & Source Code
+- **Contract A (PaymentTracker)**:
+  - **Contract ID**: `CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777`
+  - **Source File**: [`contracts/payment_tracker/src/lib.rs`](contracts/payment_tracker/src/lib.rs)
+- **Contract B (AuditLogger)**:
+  - **Source File**: [`contracts/audit_logger/src/lib.rs`](contracts/audit_logger/src/lib.rs)
+- **Verified Transaction Hash**: `f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629`
 - **Stellar Expert Explorer**: [View Contract on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777)
-- **Verified Tx Explorer**: [View Contract Invocation Tx on Stellar Expert](https://stellar.expert/explorer/testnet/tx/f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629)
-
-### Contract Architecture & Persistent Storage Functions
-
-1. **`record_payment(env: Env, sender: Address, recipient: Address, amount: i128) -> bool`**
-   - Authenticates the `sender` using `sender.require_auth()`.
-   - Reads the current payment count from persistent instance storage key `symbol_short!("count")` (defaulting to `0` if not set).
-   - Increments the count (`count + 1`) and writes the updated count back to persistent instance storage using `env.storage().instance().set(&symbol_short!("count"), &new_count)`.
-   - Publishes contract event `payment_recorded` with topics `(symbol_short!("payment"), sender, recipient)` and value `amount`.
-   - Returns `true`.
-
-2. **`get_payment_count(env: Env) -> u32`**
-   - Reads and returns the actual stored payment count from persistent instance storage using `env.storage().instance().get(&symbol_short!("count")).unwrap_or(0)`.
-   - Returns `0` if no payment count exists yet, or the actual accumulated payment count otherwise.
-
-### How Authentication Works
-The contract enforces explicit authentication using `sender.require_auth()`. When the transaction is constructed, Soroban RPC automatically attaches the required `soroban_auth` payload for the transaction signer.
-
-### How Payment Records & Events Work
-Every time `record_payment` is invoked:
-- The persistent instance storage key `count` is updated.
-- A Soroban contract event is published on ledger closing. The event contains indexed topics for `sender` and `recipient` addresses, allowing the frontend activity feed to poll and decode real-time payment events.
-
-### How the Frontend Invokes the Contract
-1. **Prepare Operation**: The frontend [`src/services/soroban.js`](src/services/soroban.js) constructs a `Contract.call("record_payment", senderAddress, recipientAddress, amountStroops)` operation using `@stellar/stellar-sdk`.
-2. **Simulate & Assemble Footprint**: Invokes `sorobanServer.prepareTransaction(rawTx)` to query Soroban RPC, fetch ledger footprint, estimate resource fees, and attach authorization signatures.
-3. **Wallet Sign**: Passes prepared unsigned XDR to Freighter or selected wallet via `@creit.tech/stellar-wallets-kit` for user approval.
-4. **Submit to Testnet**: Submits signed transaction to Stellar Testnet and updates UI status workflow.
 
 ---
 
-## 🛠️ Smart Contract Build, Test & Deploy Commands
+### Contract Responsibilities & Inter-Contract Data Flow
 
-### 1. Build Contract to WASM
+#### 1. Contract A: `PaymentTrackerContract`
+- **Responsibilities**:
+  - Validates transaction parameters (`amount > 0`, `sender != recipient`).
+  - Checks emergency pause state (`is_paused`).
+  - Authenticates caller identity (`sender.require_auth()`).
+  - Maintains persistent instance storage (`count`, `volume`, `admin`, `paused`).
+  - Calls Contract B via `AuditLoggerClient::new(&env, &audit_contract_id).log_audit(&sender, &recipient, &amount)`.
+  - Emits `(symbol_short!("payment"), sender, recipient)` event with payment amount.
+
+#### 2. Contract B: `AuditLoggerContract`
+- **Responsibilities**:
+  - Receives audit invocation from Contract A.
+  - Updates total audit log count (`aud_cnt`) and per-user audit entry index.
+  - Emits `(symbol_short!("audit"), sender, recipient)` event.
+  - Returns updated audit index back to Contract A.
+
+#### 3. Inter-Contract Call Data Flow
+1. User invokes `record_payment(sender, recipient, amount)` on **Contract A**.
+2. **Contract A** verifies caller authentication, checks input constraints, and increments local counters.
+3. **Contract A** creates `AuditLoggerClient` and executes inter-contract call `log_audit(&sender, &recipient, &amount)` on **Contract B**.
+4. **Contract B** executes, stores audit index, publishes audit event, and returns result to **Contract A**.
+5. **Contract A** publishes payment event and completes execution.
+
+---
+
+## ⚡ Level 3 Major Features
+
+1. **Advanced Smart Contract Logic**:
+   - Explicit authentication (`sender.require_auth()`).
+   - Custom `#[contracterror]` enum (`InvalidAmount`, `SameSenderRecipient`, `ContractPaused`, `Unauthorized`, `AlreadyInitialized`).
+   - Admin access control (`initialize`, `set_pause`, `set_audit_contract`).
+   - Total volume state tracking (`volume` in stroops).
+
+2. **Inter-Contract Communication**:
+   - Direct Soroban cross-contract invocation between Contract A and Contract B.
+   - Full Rust unit test coverage verifying inter-contract execution state changes.
+
+3. **Real-Time Event Subscription & Streaming**:
+   - `src/services/eventStream.js`: Continuous event listener with auto-reconnect, exponential backoff, status callbacks, and listener cleanup on unmount to prevent memory leaks.
+   - Real-time Activity Feed updates automatically without manual page refreshes.
+
+4. **Error Handling & Loading UX**:
+   - `src/utils/errors.js`: Human-readable error translator parsing wallet cancellations, contract error codes, invalid addresses, and network timeouts.
+   - 3-Step visual progress indicators (*"Step 1/3: Preparing Contract...", "Step 2/3: Awaiting Signature...", "Step 3/3: Submitting to Testnet..."*).
+
+5. **Mobile Responsive Design**:
+   - Tested and optimized across **320px**, **375px**, **390px**, **768px**, and **Desktop** viewports.
+   - Cards, tables, forms, and navigation scale cleanly with zero horizontal scrollbars.
+
+---
+
+## 🧪 Automated Test Suite (8 Passing Tests)
+
+Run the unified test suite:
 ```bash
+npm test
+```
+
+### Test Output
+```text
+==================================================
+ Stellar Level 3 Orange Belt Automated Test Suite 
+==================================================
+
+▶ Running PaymentTracker Smart Contract Tests (4 Rust tests)...
+✔ [PASS] PaymentTracker Smart Contract Tests (4 Rust tests)
+▶ Running AuditLogger Smart Contract Tests (1 Rust test)...
+✔ [PASS] AuditLogger Smart Contract Tests (1 Rust test)
+▶ Running Frontend & Event Stream Service Unit Tests (3 JS tests)...
+✔ [PASS] Frontend & Event Stream Service Unit Tests (3 JS tests)
+
+==================================================
+ Tests: 8 passing (0 failed)
+ All Smart Contract & Frontend Tests Passed! 
+==================================================
+```
+
+---
+
+## ⚙️ GitHub Actions CI/CD Pipeline
+
+Location: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+The pipeline automatically runs on pushes and pull requests:
+1. **Checkout Code**: Fetches latest commit.
+2. **Setup Toolchains**: Configures Node.js (v20) and Rust stable toolchain.
+3. **Install Dependencies**: Executes `npm install`.
+4. **Execute Test Suite**: Runs `npm test` (cargo test + JS unit tests). Pipeline fails if any test fails.
+5. **Build Production Bundle**: Validates `npm run build` Vite production bundle.
+
+---
+
+## 🛠️ Smart Contract Deployment Workflow
+
+### 1. Build WASM Binaries
+```bash
+# Contract A: Payment Tracker
 cd contracts/payment_tracker
 cargo build --target wasm32-unknown-unknown --release
-```
-WASM artifact generated at: `target/wasm32-unknown-unknown/release/payment_tracker_contract.wasm`
 
-### 2. Run Contract Unit Tests
-```bash
-cd contracts/payment_tracker
-cargo test
+# Contract B: Audit Logger
+cd ../audit_logger
+cargo build --target wasm32-unknown-unknown --release
 ```
 
-### 3. Deploy Contract to Stellar Testnet
+### 2. Deploy to Stellar Testnet via Stellar CLI
 ```bash
-# Configure Testnet Network & Identity
+# Configure Testnet Network & Deployer Identity
 stellar network add --global testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
 stellar keys generate --global deployer --network testnet
-
-# Fund deployer identity via Friendbot
 stellar keys fund deployer --network testnet
 
-# Deploy contract WASM
+# Deploy Secondary Contract B (Audit Logger)
 stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/payment_tracker_contract.wasm \
+  --wasm contracts/audit_logger/target/wasm32-unknown-unknown/release/audit_logger_contract.wasm \
+  --source deployer \
+  --network testnet
+
+# Deploy Main Contract A (Payment Tracker)
+stellar contract deploy \
+  --wasm contracts/payment_tracker/target/wasm32-unknown-unknown/release/payment_tracker_contract.wasm \
   --source deployer \
   --network testnet
 ```
 
----
-
-## 🔌 Multi-Wallet Support
-
-Integrated using `@creit.tech/stellar-wallets-kit`, providing seamless wallet selection, account retrieval, and transaction signing across:
-
-1. **Freighter Wallet**: Official SDF browser extension for Stellar.
-2. **Albedo Wallet**: Secure delegated web signer for Stellar.
-3. **xBull Wallet**: Feature-rich multi-account Stellar extension & mobile wallet.
-4. **Lobstr Wallet**: Popular mobile & web Stellar wallet.
-5. **Rabet Wallet**: Desktop & extension wallet for Stellar.
-
----
-
-## ⏳ Real-Time Transaction Status Workflow
-
-The UI explicitly manages 4 real-time state transitions:
-
-1. **`Ready`**: Initial state waiting for user payment inputs.
-2. **`Pending`**: *"Transaction pending. Waiting for confirmation..."* displayed while signature is requested and submitted to Stellar Testnet.
-3. **`Success`**: *"Transaction successful"* card showing Amount, Sender, Recipient, Hash, Contract Address, and Explorer link.
-4. **`Failed`**: *"Transaction failed. Please try again"* showing friendly user diagnostics.
-
----
-
-## 🔄 Real-Time Soroban Activity Feed
-
-- **Event Subscriber**: [`src/services/soroban.js`](src/services/soroban.js) polls `https://soroban-testnet.stellar.org` via `sorobanServer.getEvents()` every 6 seconds.
-- **Dynamic Feed Component**: [`src/components/ActivityFeed.jsx`](src/components/ActivityFeed.jsx) renders live payment data (Amount, Sender, Recipient, Hash, Explorer Link, Confirmed status) without page refresh.
-
----
-
-## 🛡️ Error Handling Scenarios
-
-1. **Wallet Not Found / Not Installed**: Displays clear alert: *"Wallet is not installed or enabled in your browser. Please install wallet or choose another option."*
-2. **User Rejected / Connection Denied**: Displays user-friendly alert: *"Action was cancelled by the user in the wallet."*
-3. **Insufficient Balance**: Validates client-side and returns: *"Insufficient XLM balance in your connected wallet."*
-
----
-
-## 📸 Application Screenshots
-
-### 1. Select Wallet Modal
-![Select Wallet Modal](docs/screenshots/level2-01-wallet-modal.png)
-
-### 2. Connected Wallet & Live Balance
-![Connected Wallet & Live Balance](docs/screenshots/level2-02-connected-wallet.png)
-
-### 3. Send Payment Form
-![Send Payment Form](docs/screenshots/level2-03-send-form.png)
-
-### 4. Transaction Pending Status
-![Transaction Pending Status](docs/screenshots/level2-06-pending-status.png)
-
-### 5. Transaction Successful Status & Explorer Links
-![Transaction Successful Status](docs/screenshots/level2-04-transaction-success.png)
-
-### 6. Real-Time Soroban Contract Activity Feed
-![Real-Time Soroban Contract Activity Feed](docs/screenshots/level2-05-activity-feed.png)
-
-### 7. Deployed Soroban Contract On-Chain Verification
-![Soroban Contract Verification](docs/screenshots/level2-07-soroban-contract.png)
-
-### 8. User Error Handling: Wallet Missing / Not Installed
-![Wallet Missing Error](docs/screenshots/level2-08-wallet-missing-error.png)
-
-### 9. User Error Handling: Connection Denied / Rejected Signature
-![Connection Denied Error](docs/screenshots/level2-10-connection-denied-error.png)
-
-### 10. Unactivated Account Warning & Friendbot Faucet
-![Unfunded Account Warning](docs/screenshots/level2-09-unfunded-account-faucet.png)
-
----
-
-## 🚀 Local Installation & Running Instructions
-
-### 1. Prerequisites
-- Node.js v18.0 or higher
-- Rust & `wasm32-unknown-unknown` target (for contract builds)
-- Freighter Wallet browser extension set to **Testnet**
-
-### 2. Clone Repository & Checkout Level 2 Branch
-```bash
-git clone https://github.com/nikitabiradar231/SimplePayment.git
-cd SimplePayment
-git checkout level2-development
-```
-
-### 3. Install Frontend Dependencies
-```bash
-npm install
-```
-
-### 4. Configure Environment Variables
-Copy `.env.example` to `.env`:
-```bash
-cp .env.example .env
-```
-
-Ensure `.env` contains:
+### 3. Link Contracts & Configure Environment
+In `.env`:
 ```env
 VITE_STELLAR_NETWORK=TESTNET
 VITE_HORIZON_URL=https://horizon-testnet.stellar.org
@@ -200,57 +208,57 @@ VITE_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
 VITE_SOROBAN_CONTRACT_ID=CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777
 ```
 
-### 5. Run Local Development Server
-```bash
-npm run dev
-```
+---
 
-Open `http://localhost:5173/` in your browser.
+## 💻 Local Installation & Setup
 
-### 6. Build Frontend for Production
-```bash
-npm run build
-```
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/nikitabiradar231/SimplePayment.git
+   cd SimplePayment
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run Development Server**:
+   ```bash
+   npm dev
+   ```
+   Open `http://localhost:5173/` in your browser.
+
+4. **Build Production Bundle**:
+   ```bash
+   npm run build
+   ```
 
 ---
 
-## 📁 Project Directory Structure
+## 📸 Submission Evidence Checklist
 
-```
-SimplePayment/
-├── contracts/
-│   └── payment_tracker/
-│       ├── Cargo.toml            # Rust contract manifest
-│       ├── Cargo.lock            # Lockfile for reproducible builds
-│       ├── src/
-│       │   └── lib.rs            # Soroban Payment Tracker smart contract
-│       └── patches/
-│           └── ethnum/           # Local crate patch for compiler compatibility
-├── src/
-│   ├── components/
-│   │   ├── Navbar.jsx            # Header with contract address badge
-│   │   ├── WalletModal.jsx       # Multi-wallet selector modal
-│   │   ├── WalletCard.jsx        # Connected wallet details & balance
-│   │   ├── SendPaymentForm.jsx   # Payment form & validation
-│   │   ├── TransactionStatus.jsx # Real-time status workflow (Ready, Pending, Success, Failed)
-│   │   └── ActivityFeed.jsx      # Live Soroban contract event feed
-│   ├── services/
-│   │   ├── walletKit.js          # StellarWalletsKit multi-wallet service
-│   │   ├── soroban.js            # Soroban RPC event polling & contract builder
-│   │   └── stellar.js            # Horizon balance fetch & Friendbot
-│   ├── App.jsx                   # Main layout and state orchestration
-│   └── index.css                 # Cosmic dark design tokens & glassmorphism
-├── docs/
-│   └── screenshots/              # Verified application screenshots
-├── .env                          # Environment configuration
-├── .env.example
-├── vercel.json
-├── package.json
-└── README.md                     # Documentation & evaluator instructions
-```
+1. **Screenshot 1**: Mobile Responsive UI (Tested at 320px / 375px / 390px in browser devtools).
+2. **Screenshot 2**: Smart Contract Interaction (Payment submission form and wallet confirmation dialog).
+3. **Screenshot 3**: Inter-Contract Functionality (Transaction detail card showing Contract A & Contract B invocation).
+4. **Screenshot 4**: Real-Time Event Update (Activity Feed updated automatically without page refresh).
+5. **Screenshot 5**: Loading & Error Handling (Progress step messages and user-friendly error banners).
+6. **Screenshot 6**: CI/CD GitHub Actions Workflow (Successful pipeline execution in GitHub repository).
+7. **Screenshot 7**: Terminal Test Output (`npm test` showing `Tests: 8 passing`).
+8. **Screenshot 8**: Successful On-Chain Transaction (`f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629` on Stellar Expert).
+
+---
+
+## 🎥 1–2 Minute Demo Video Script
+
+1. **Introduction (0:00 - 0:15)**: Open live URL, explain StellarPay Level 3 dApp and dual Soroban smart contract architecture.
+2. **Wallet Connection & Responsive UI (0:15 - 0:30)**: Connect Freighter wallet, demonstrate live XLM balance fetch, and resize window to show mobile responsive layout.
+3. **Smart Contract Execution (0:30 - 0:55)**: Input payment details, click "Send Payment & Record on Soroban". Highlight 3-step progress message, approve signature in wallet.
+4. **Inter-Contract & Real-Time Event Update (0:55 - 1:20)**: Show transaction success card with transaction hash and contract address. Point out Activity Feed updating in real-time via event stream without page refresh.
+5. **Testing & CI/CD Wrap-up (1:20 - 1:45)**: Show terminal output (`npm test` with 8 passing tests) and GitHub Actions green CI pipeline badge.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+Licensed under the MIT License.
