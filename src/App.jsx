@@ -12,7 +12,6 @@ import {
   connectSelectedWallet,
   signWithSelectedWallet,
   FREIGHTER_ID,
-  SUPPORTED_WALLETS,
 } from "./services/walletKit";
 import {
   getXlmBalance,
@@ -25,6 +24,8 @@ import {
   DEFAULT_CONTRACT_ID,
   sorobanServer,
 } from "./services/soroban";
+import { subscribeToContractEvents } from "./services/eventStream";
+import { formatUserFriendlyError } from "./utils/errors";
 
 export default function App() {
   // Wallet State
@@ -70,7 +71,7 @@ export default function App() {
     }
   };
 
-  // Poll Soroban Contract Events for Real-time Activity Feed
+  // Manual event refresh trigger
   const loadContractEvents = async () => {
     setIsLoadingEvents(true);
     try {
@@ -83,13 +84,21 @@ export default function App() {
     }
   };
 
-  // Initial event fetch & periodic 6-second polling for real-time activity feed
+  // Real-Time Event Subscription Stream with automatic reconnect & cleanup
   useEffect(() => {
-    loadContractEvents();
-    const interval = setInterval(() => {
-      loadContractEvents();
-    }, 6000);
-    return () => clearInterval(interval);
+    setIsLoadingEvents(true);
+    const unsubscribe = subscribeToContractEvents(
+      DEFAULT_CONTRACT_ID,
+      (allEvents) => {
+        setEvents(allEvents);
+        setIsLoadingEvents(false);
+      },
+      (err) => {
+        console.warn("Event stream reconnecting...", err);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
   // Multi-Wallet Connection Handler
@@ -107,8 +116,9 @@ export default function App() {
       setIsModalOpen(false);
       await fetchBalance(res.address);
     } catch (err) {
-      setModalError(err.message || "Failed to connect selected wallet.");
-      setConnectError(err.message || "Failed to connect selected wallet.");
+      const friendlyMsg = formatUserFriendlyError(err);
+      setModalError(friendlyMsg);
+      setConnectError(friendlyMsg);
     } finally {
       setIsConnecting(false);
       setConnectingWalletId("");
@@ -145,7 +155,7 @@ export default function App() {
     } catch (err) {
       setTxStatus("Failed");
       setTxResult({
-        error: err.message || "Friendbot funding failed.",
+        error: formatUserFriendlyError(err),
         rawError: err,
       });
     } finally {
@@ -153,13 +163,13 @@ export default function App() {
     }
   };
 
-  // Level 2 Contract & Payment Execution Flow
+  // Level 3 Contract Payment & Inter-Contract Execution Flow
   const handleSendPayment = async ({ recipientAddress, amount }) => {
     if (!walletAddress) return;
 
     setIsSubmitting(true);
     setTxStatus("Pending");
-    setStatusMessage("1/3 Building Soroban Contract payment transaction...");
+    setStatusMessage("Step 1/3: Preparing Soroban PaymentTracker smart contract transaction...");
 
     try {
       // 1. Build payment & Soroban tracker transaction
@@ -171,7 +181,7 @@ export default function App() {
       });
 
       // 2. Request signature from active wallet
-      setStatusMessage(`2/3 Please approve transaction in ${activeWalletName}...`);
+      setStatusMessage(`Step 2/3: Please confirm transaction in ${activeWalletName}...`);
       const signedXdr = await signWithSelectedWallet(
         unsignedXdr,
         activeWalletId,
@@ -179,7 +189,7 @@ export default function App() {
       );
 
       // 3. Submit transaction to Stellar Testnet
-      setStatusMessage("3/3 Submitting transaction & recording contract event...");
+      setStatusMessage("Step 3/3: Executing inter-contract call & recording event on-chain...");
       const signedTransaction = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
       let txHash = "";
       try {
@@ -202,7 +212,7 @@ export default function App() {
       };
       setTxResult(successData);
 
-      // 5. Instantly prepend new event to Activity Feed (real-time update without refresh)
+      // 5. Instantly update events feed (real-time UX update without manual refresh)
       const newFeedItem = {
         id: txHash || `tx-${Date.now()}`,
         sender: walletAddress,
@@ -220,7 +230,7 @@ export default function App() {
       console.error("Payment submission failed:", err);
       setTxStatus("Failed");
       setTxResult({
-        error: err.message || "Transaction failed to process on Stellar Testnet.",
+        error: formatUserFriendlyError(err),
         rawError: err,
       });
     } finally {
@@ -308,7 +318,7 @@ export default function App() {
 
       {/* Footer */}
       <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "20px 0", textAlign: "center", fontSize: "0.8rem", color: "var(--text-dim)" }}>
-        Stellar Level 2 Multi-Wallet Payment Tracker • Soroban Smart Contract: <span className="mono-font" style={{ color: "#38bdf8" }}>{DEFAULT_CONTRACT_ID.slice(0, 8)}...</span>
+        Stellar Level 3 Payment Tracker & Inter-Contract Engine • Smart Contract: <span className="mono-font" style={{ color: "#38bdf8" }}>{DEFAULT_CONTRACT_ID.slice(0, 8)}...</span>
       </footer>
     </div>
   );

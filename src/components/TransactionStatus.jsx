@@ -9,10 +9,10 @@ import {
   ChevronDown,
   ChevronUp,
   FileCode,
-  ShieldAlert,
 } from "lucide-react";
-import { STELLAR_EXPERT_TESTNET_URL, getStellarLabExplorerUrl, getStellarExpertExplorerUrl } from "../services/stellar";
+import { getStellarLabExplorerUrl, getStellarExpertExplorerUrl } from "../services/stellar";
 import { DEFAULT_CONTRACT_ID } from "../services/soroban";
+import { formatUserFriendlyError } from "../utils/errors";
 
 export default function TransactionStatus({ status, result, onDismiss }) {
   const [copiedHash, setCopiedHash] = useState(false);
@@ -118,7 +118,7 @@ export default function TransactionStatus({ status, result, onDismiss }) {
               </div>
 
               <h3 className="heading-font" style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "8px" }}>
-                {result.amount} XLM Sent & Contract Recorded
+                {result.amount} XLM Sent & Smart Contract Recorded
               </h3>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "16px" }}>
@@ -214,10 +214,6 @@ export default function TransactionStatus({ status, result, onDismiss }) {
                   Horizon API <ExternalLink size={12} />
                 </a>
               </div>
-
-              <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", lineHeight: 1.4 }}>
-                * Note: Stellar Explorer (Laboratory) reads live Testnet data instantly. Third-party crawlers (Stellar Expert) index Testnet blocks asynchronously.
-              </div>
             </div>
           </div>
         </div>
@@ -262,11 +258,11 @@ export default function TransactionStatus({ status, result, onDismiss }) {
               </div>
 
               <h3 className="heading-font" style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "8px", color: "#fca5a5" }}>
-                Transaction failed. Please try again.
+                Transaction execution issue
               </h3>
 
               <p style={{ fontSize: "0.9rem", color: "var(--text-main)", marginBottom: "14px", lineHeight: 1.5 }}>
-                {result && result.error ? result.error : "Transaction could not be submitted to Stellar Testnet."}
+                {formatUserFriendlyError(result ? result.error || result.rawError : null)}
               </p>
 
               {/* Technical Accordion */}
@@ -287,7 +283,7 @@ export default function TransactionStatus({ status, result, onDismiss }) {
                       marginBottom: "8px"
                     }}
                   >
-                    <span>Technical Debug Log</span>
+                    <span>Technical Debug Info</span>
                     {showTechDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   </button>
 
