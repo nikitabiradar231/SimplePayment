@@ -8,7 +8,9 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:contract": "node scripts/verify_contract.js"
+    "test": "node scripts/test_runner.js",
+    "test:contract": "node scripts/verify_contract.js",
+    "test:frontend": "node scripts/frontend_tests.js"
   },
   "dependencies": {
     "@albedo-link/intent": "^0.11.0",

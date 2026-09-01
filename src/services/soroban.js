@@ -15,11 +15,12 @@ import {
 
 // Default Deployed Soroban Payment Tracker Smart Contract on Stellar Testnet
 export const DEFAULT_CONTRACT_ID =
-  import.meta.env.VITE_SOROBAN_CONTRACT_ID ||
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SOROBAN_CONTRACT_ID) ||
   "CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777";
 
 export const SOROBAN_RPC_URL =
-  import.meta.env.VITE_SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org";
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SOROBAN_RPC_URL) ||
+  "https://soroban-testnet.stellar.org";
 
 // Soroban RPC Server Instance
 export const sorobanServer = new SorobanRpc.Server(SOROBAN_RPC_URL);
