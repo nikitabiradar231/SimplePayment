@@ -27,7 +27,7 @@ This checklist tracks all 20 required criteria for the **Stellar Soroban Level 3
 | 17 | **Mobile responsive screenshot** | 🟢 COMPLETED | [`docs/screenshots/level3-01-mobile-responsive.png`](docs/screenshots/level3-01-mobile-responsive.png) | **Verified Image** | Chrome DevTools 375px viewport screenshot. |
 | 18 | **CI/CD pipeline screenshot** | 🟢 COMPLETED | [`docs/screenshots/level3-02-ci-pipeline.png`](docs/screenshots/level3-02-ci-pipeline.png) | **Verified Image** | GitHub Actions green pipeline build screenshot. |
 | 19 | **Test output screenshot (3+ passing)** | 🟢 COMPLETED | [`docs/screenshots/level3-03-test-output.png`](docs/screenshots/level3-03-test-output.png) | **Verified Image** | Terminal screenshot of `npm test` (12 passing). |
-| 20 | **1–2 minute demo video** | 🟡 PENDING | Video link / recording | 👤 **MANUAL (User Task)** | Record browser interaction per video script. |
+| 20 | **1–2 minute demo video** | 🟢 COMPLETED | [Google Drive Demo Video Link](https://drive.google.com/file/d/1xU9HwvpHoJfxOdUfj9fT9PHKBLRsW8Qz/view?usp=drivesdk) | **Video Recording** | Live video demonstration of dApp features. |
 
 ---
 

@@ -258,13 +258,16 @@ VITE_SOROBAN_CONTRACT_ID=CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E477
 
 ---
 
-## 🎥 1–2 Minute Demo Video Script
+## 🎥 1–2 Minute Demo Video
 
+- 🎬 **Watch Demo Video**: [StellarPay Level 3 Demo Video on Google Drive](https://drive.google.com/file/d/1xU9HwvpHoJfxOdUfj9fT9PHKBLRsW8Qz/view?usp=drivesdk)
+
+### Demo Video Script Breakdown
 1. **Introduction (0:00 - 0:15)**: Open live URL, explain StellarPay Level 3 dApp and dual Soroban smart contract architecture.
 2. **Wallet Connection & Responsive UI (0:15 - 0:30)**: Connect Freighter wallet, demonstrate live XLM balance fetch, and resize window to show mobile responsive layout.
 3. **Smart Contract Execution (0:30 - 0:55)**: Input payment details, click "Send Payment & Record on Soroban". Highlight 3-step progress message, approve signature in wallet.
 4. **Inter-Contract & Real-Time Event Update (0:55 - 1:20)**: Show transaction success card with transaction hash and contract address. Point out Activity Feed updating in real-time via event stream without page refresh.
-5. **Testing & CI/CD Wrap-up (1:20 - 1:45)**: Show terminal output (`npm test` with 8 passing tests) and GitHub Actions green CI pipeline badge.
+5. **Testing & CI/CD Wrap-up (1:20 - 1:45)**: Show terminal output (`npm test` with 12 passing tests) and GitHub Actions green CI pipeline badge.
 
 ---
 
