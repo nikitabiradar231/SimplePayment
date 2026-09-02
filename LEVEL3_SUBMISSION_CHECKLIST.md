@@ -24,9 +24,9 @@ This checklist tracks all 20 required criteria for the **Stellar Soroban Level 3
 | 14 | **Live demo** | 🟢 COMPLETED | [Vercel Live Application](https://simple-payment-dapp-woad.vercel.app/) | **Automated Deployment** | Accessible online. |
 | 15 | **Contract deployment address** | 🟢 COMPLETED | `CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777` | **Automated Verification** | Verified on Soroban RPC & Explorer. |
 | 16 | **Transaction hash** | 🟢 COMPLETED | `f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629` | **Automated Verification** | Verified on Horizon Testnet. |
-| 17 | **Mobile responsive screenshot** | 🟡 PENDING | Screenshot file in README/docs | 👤 **MANUAL (User Task)** | Capture Chrome DevTools at 375px. |
-| 18 | **CI/CD pipeline screenshot** | 🟡 PENDING | Screenshot file in README/docs | 👤 **MANUAL (User Task)** | Capture GitHub Actions green build check. |
-| 19 | **Test output screenshot (3+ passing)** | 🟡 PENDING | Screenshot file in README/docs | 👤 **MANUAL (User Task)** | Capture terminal output of `npm test` (12 passing). |
+| 17 | **Mobile responsive screenshot** | 🟢 COMPLETED | [`docs/screenshots/level3-01-mobile-responsive.png`](docs/screenshots/level3-01-mobile-responsive.png) | **Verified Image** | Chrome DevTools 375px viewport screenshot. |
+| 18 | **CI/CD pipeline screenshot** | 🟢 COMPLETED | [`docs/screenshots/level3-02-ci-pipeline.png`](docs/screenshots/level3-02-ci-pipeline.png) | **Verified Image** | GitHub Actions green pipeline build screenshot. |
+| 19 | **Test output screenshot (3+ passing)** | 🟢 COMPLETED | [`docs/screenshots/level3-03-test-output.png`](docs/screenshots/level3-03-test-output.png) | **Verified Image** | Terminal screenshot of `npm test` (12 passing). |
 | 20 | **1–2 minute demo video** | 🟡 PENDING | Video link / recording | 👤 **MANUAL (User Task)** | Record browser interaction per video script. |
 
 ---

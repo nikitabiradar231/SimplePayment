@@ -241,16 +241,20 @@ VITE_SOROBAN_CONTRACT_ID=CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E477
 
 ---
 
-## 📸 Submission Evidence Checklist
+## 📸 Submission Evidence & Screenshots
 
-1. **Screenshot 1**: Mobile Responsive UI (Tested at 320px / 375px / 390px in browser devtools).
-2. **Screenshot 2**: Smart Contract Interaction (Payment submission form and wallet confirmation dialog).
-3. **Screenshot 3**: Inter-Contract Functionality (Transaction detail card showing Contract A & Contract B invocation).
-4. **Screenshot 4**: Real-Time Event Update (Activity Feed updated automatically without page refresh).
-5. **Screenshot 5**: Loading & Error Handling (Progress step messages and user-friendly error banners).
-6. **Screenshot 6**: CI/CD GitHub Actions Workflow (Successful pipeline execution in GitHub repository).
-7. **Screenshot 7**: Terminal Test Output (`npm test` showing `Tests: 8 passing`).
-8. **Screenshot 8**: Successful On-Chain Transaction (`f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629` on Stellar Expert).
+### 1. Mobile Responsive UI (375px Viewport)
+![Mobile Responsive UI](docs/screenshots/level3-01-mobile-responsive.png)
+
+### 2. Automated Test Suite Output (12/12 Passing Tests)
+![Automated Test Suite Output](docs/screenshots/level3-03-test-output.png)
+
+### 3. GitHub Actions CI/CD Pipeline
+![GitHub Actions CI/CD Pipeline](docs/screenshots/level3-02-ci-pipeline.png)
+
+### 4. Smart Contract Interaction & On-Chain Transaction Verification
+- **Verified Transaction Hash**: [`f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629`](https://stellar.expert/explorer/testnet/tx/f60c716c280d43fe60a7fd0dd2de7b90bc27544d42ddc9b9945fe4eef191c629)
+- **Deployed Contract Address**: [`CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777`](https://stellar.expert/explorer/testnet/contract/CDIZDH4Q2RWA65Q2XXUUJEWS5ACUVTTH3ZGGNPWCU5PTEQ2NYM4E4777)
 
 ---
 
