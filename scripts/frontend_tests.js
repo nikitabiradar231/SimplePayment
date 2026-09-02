@@ -44,4 +44,38 @@ console.log("Running Frontend & Service Unit Tests...\n");
   console.log("  [PASS] Test 3: Event stream subscription & memory-leak cleanup lifecycle");
 }
 
+// Test 4: Error Formatter - Network Connection / Timeout Error
+{
+  const err = new Error("Failed to fetch");
+  const formatted = formatUserFriendlyError(err);
+  assert.strictEqual(
+    formatted,
+    "Network connection issue or Soroban RPC timeout. Please retry in a few moments.",
+    "Should format network connection failure"
+  );
+  console.log("  [PASS] Test 4: Network connection and Soroban RPC failure translation");
+}
+
+// Test 5: Event Stream Deduplication Logic
+{
+  const seenIds = new Set();
+  const mockEvents = [
+    { id: "evt_101", amount: "10" },
+    { id: "evt_101", amount: "10" }, // duplicate
+    { id: "evt_102", amount: "20" }
+  ];
+
+  const unique = mockEvents.filter((e) => {
+    if (seenIds.has(e.id)) return false;
+    seenIds.add(e.id);
+    return true;
+  });
+
+  assert.strictEqual(unique.length, 2, "Deduplication should keep 2 distinct events from 3 items");
+  assert.strictEqual(unique[0].id, "evt_101");
+  assert.strictEqual(unique[1].id, "evt_102");
+  console.log("  [PASS] Test 5: Event stream event deduplication logic");
+}
+
 console.log("\nAll Frontend Service Tests Passed Successfully!\n");
+

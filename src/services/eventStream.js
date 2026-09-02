@@ -1,4 +1,4 @@
-import { sorobanServer, fetchPaymentEvents, DEFAULT_CONTRACT_ID } from "./soroban";
+import { sorobanServer, fetchPaymentEvents, DEFAULT_CONTRACT_ID } from "./soroban.js";
 
 /**
  * Event Stream Subscription Manager

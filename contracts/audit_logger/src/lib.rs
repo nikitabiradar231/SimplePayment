@@ -70,4 +70,28 @@ mod test {
         assert_eq!(client.get_audit_count(), 2);
         assert_eq!(client.get_user_audit_count(&sender), 2);
     }
+
+    #[test]
+    fn test_audit_logger_per_user_counters() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, AuditLoggerContract);
+        let client = AuditLoggerContractClient::new(&env, &contract_id);
+
+        let user_a = Address::generate(&env);
+        let user_b = Address::generate(&env);
+        let recipient = Address::generate(&env);
+
+        // User A performs 2 audits
+        client.log_audit(&user_a, &recipient, &1_000_000);
+        client.log_audit(&user_a, &recipient, &2_000_000);
+
+        // User B performs 1 audit
+        client.log_audit(&user_b, &recipient, &5_000_000);
+
+        // Verify independent user counters
+        assert_eq!(client.get_audit_count(), 3);
+        assert_eq!(client.get_user_audit_count(&user_a), 2);
+        assert_eq!(client.get_user_audit_count(&user_b), 1);
+    }
 }
+

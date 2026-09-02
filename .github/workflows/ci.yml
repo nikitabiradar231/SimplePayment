@@ -2,9 +2,9 @@ name: Level 3 CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, master, level2-development, level3-development ]
+    branches: [ main, master, level2-development, level3, level3-development ]
   pull_request:
-    branches: [ main, master, level2-development, level3-development ]
+    branches: [ main, master, level2-development, level3, level3-development ]
 
 jobs:
   build-and-test:

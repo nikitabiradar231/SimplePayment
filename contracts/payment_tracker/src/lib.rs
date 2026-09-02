@@ -239,4 +239,34 @@ mod test {
         let res = client.try_record_payment(&sender, &recipient, &10_000_000);
         assert!(res.is_err());
     }
+
+    #[test]
+    fn test_admin_authorization_and_unauthorized_reject() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let tracker_id = env.register_contract(None, PaymentTrackerContract);
+        let client = PaymentTrackerContractClient::new(&env, &tracker_id);
+
+        let admin = Address::generate(&env);
+        let stranger = Address::generate(&env);
+        let audit_addr = Address::generate(&env);
+
+        // Initialize contract
+        assert!(client.initialize(&admin, &None));
+
+        // Re-initialization attempt should fail with error
+        let re_init = client.try_initialize(&stranger, &None);
+        assert!(re_init.is_err());
+
+        // Non-admin attempting to set pause state should fail
+        let pause_res = client.try_set_pause(&stranger, &true);
+        assert!(pause_res.is_err());
+
+        // Admin setting pause succeeds
+        assert!(client.set_pause(&admin, &true));
+
+        // Admin configuring audit contract succeeds
+        assert!(client.set_audit_contract(&admin, &audit_addr));
+    }
 }
+

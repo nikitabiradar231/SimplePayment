@@ -28,16 +28,16 @@ function runStep(name, command, cwd) {
 }
 
 // 1. Smart Contract A Tests (PaymentTracker)
-runStep("PaymentTracker Smart Contract Tests (4 Rust tests)", "cargo test -- --nocapture", path.join(rootDir, "contracts", "payment_tracker"));
-totalPassed += 4;
+runStep("PaymentTracker Smart Contract Tests (5 Rust tests)", "cargo test -- --nocapture", path.join(rootDir, "contracts", "payment_tracker"));
+totalPassed += 5;
 
 // 2. Smart Contract B Tests (AuditLogger)
-runStep("AuditLogger Smart Contract Tests (1 Rust test)", "cargo test -- --nocapture", path.join(rootDir, "contracts", "audit_logger"));
-totalPassed += 1;
+runStep("AuditLogger Smart Contract Tests (2 Rust tests)", "cargo test -- --nocapture", path.join(rootDir, "contracts", "audit_logger"));
+totalPassed += 2;
 
 // 3. Frontend & Service Unit Tests
-runStep("Frontend & Event Stream Service Unit Tests (3 JS tests)", "node scripts/frontend_tests.js", rootDir);
-totalPassed += 3;
+runStep("Frontend & Event Stream Service Unit Tests (5 JS tests)", "node scripts/frontend_tests.js", rootDir);
+totalPassed += 5;
 
 console.log("\n==================================================");
 console.log(` Tests: ${totalPassed} passing (${totalFailed} failed)`);
