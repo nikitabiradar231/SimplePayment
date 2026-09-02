@@ -1,6 +1,6 @@
 # StellarPay — Multi-Wallet Payment Tracker & Inter-Contract Engine (Level 3 Orange Belt)
 
-A production-ready, mobile-responsive **Stellar Soroban dApp** upgraded to **Level 3 - Orange Belt** submission standards. Built on **Stellar Testnet**, featuring **Multi-Wallet Support** (`@creit.tech/stellar-wallets-kit`), **Inter-Contract Smart Communication** (`PaymentTracker` → `AuditLogger`), **Real-Time Event Subscription Streaming**, **Comprehensive Error Handling & Loading Progress**, an **Automated Test Suite (8 Passing Tests)**, and a **GitHub Actions CI/CD Pipeline**.
+A production-ready, mobile-responsive **Stellar Soroban dApp** upgraded to **Level 3 - Orange Belt** submission standards. Built on **Stellar Testnet**, featuring **Multi-Wallet Support** (`@creit.tech/stellar-wallets-kit`), **Inter-Contract Smart Communication** (`PaymentTracker` → `AuditLogger`), **Real-Time Event Subscription Streaming**, **Comprehensive Error Handling & Loading Progress**, an **Automated Test Suite (12 Passing Tests)**, and a **GitHub Actions CI/CD Pipeline**.
 
 ---
 
